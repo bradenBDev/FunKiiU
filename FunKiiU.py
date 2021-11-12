@@ -17,7 +17,7 @@ import sys
 import zlib
 
 try:
-    from urllib.request import urlopen
+    import urllib.request
     from urllib.error import URLError, HTTPError
 except ImportError:
     from urllib2 import urlopen, URLError, HTTPError
@@ -26,6 +26,17 @@ try:
     real_input = raw_input  # Python2
 except NameError:
     real_input = input  # Python3
+
+hdr = [('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'),
+       ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'),
+       ('Accept-Charset', 'ISO-8859-1,utf-8;q=0.7,*;q=0.3'),
+       ('Accept-Encoding', 'none'),
+       ('Accept-Language', 'en-US,en;q=0.8'),
+       ('Connection', 'keep-alive')]
+
+opener = urllib.request.build_opener()
+opener.addheaders = hdr
+urllib.request.install_opener(opener)
 
 b64decompress = lambda d: zlib.decompress(base64.b64decode(d))
 
@@ -106,7 +117,7 @@ def progress_bar(part, total, length=10, char='#', blank=' ', left='[', right=']
 def download_file(url, outfname, retry_count=3, ignore_404=False, expected_size=None, chunk_size=0x4096):
     for _ in retry(retry_count):
         try:
-            infile = urlopen(url)
+            infile = urllib.request.urlopen(url)
             # start of modified code
             if os.path.isfile(outfname):
                 statinfo = os.stat(outfname)
